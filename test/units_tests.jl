@@ -2,6 +2,9 @@ using Unitful#, UnitfulPlots
 using OrdinaryDiffEq, DiffEqBase
 NON_IMPLICIT_ALGS = filter((x)->isleaftype(x) && !OrdinaryDiffEq.isimplicit(x()),union(subtypes(OrdinaryDiffEqAlgorithm),subtypes(OrdinaryDiffEqAdaptiveAlgorithm)))
 
+const UNITS_TEST_ALGS = [Euler(),Midpoint(),RK4(),SSPRK104(),SSPRK22(),SSPRK33(),
+    SSPRK432(),BS3(),BS5(),DP5(),DP5Threaded(),DP8(),Feagin10(),Feagin12(),Feagin14(),
+    TanYam7(),Tsit5(),TsitPap8(),Vern6(),Vern7(),Vern8(),Vern9()]
 
 f = (t,y) -> 0.5*y / 3.0u"s"
 u0 = 1.0u"N"
@@ -13,7 +16,7 @@ sol =solve(prob,Midpoint(),dt=1u"s"/10)
 
 sol =solve(prob,ExplicitRK())
 
-for alg in CACHE_TEST_ALGS
+for alg in UNITS_TEST_ALGS
   if !(typeof(alg) <: DP5Threaded)
     @show alg
     sol = solve(prob,alg,dt=1u"s"/10)
@@ -34,7 +37,7 @@ sol =solve(prob,DP5())
 
 sol =solve(prob,DP5Threaded())
 
-for alg in CACHE_TEST_ALGS
+for alg in UNITS_TEST_ALGS
   @show alg
   sol = solve(prob,alg,dt=1u"s"/10)
 end
