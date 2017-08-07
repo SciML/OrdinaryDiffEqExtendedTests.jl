@@ -1,6 +1,6 @@
-# OrdinaryDiffEqExtendedTests
+# OrdinaryDiffEqExtendedTests.jl
 
-[![Build Status](https://travis-ci.org/ChrisRackauckas/OrdinaryDiffEqExtendedTests.jl.svg?branch=master)](https://travis-ci.org/ChrisRackauckas/OrdinaryDiffEqExtendedTests.jl)
+[![Build Status](https://travis-ci.org/JuliaDiffEq/OrdinaryDiffEqExtendedTests.jl.svg?branch=master)](https://travis-ci.org/JuliaDiffEq/OrdinaryDiffEqExtendedTests.jl)
 
 This repository is for extended tests of OrdinaryDiffEq.jl. They cover extra
 features like full convergence tests of the Feagin methods and units compatibility
