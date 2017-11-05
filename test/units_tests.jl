@@ -1,6 +1,5 @@
 using Unitful#, UnitfulPlots
 using OrdinaryDiffEq, DiffEqBase
-NON_IMPLICIT_ALGS = filter((x)->isleaftype(x) && !OrdinaryDiffEq.isimplicit(x()),union(subtypes(OrdinaryDiffEqAlgorithm),subtypes(OrdinaryDiffEqAdaptiveAlgorithm)))
 
 const UNITS_TEST_ALGS = [Euler(),Midpoint(),RK4(),SSPRK104(),SSPRK22(),SSPRK33(),
     SSPRK432(),BS3(),BS5(),DP5(),DP5Threaded(),DP8(),Feagin10(),Feagin12(),Feagin14(),
@@ -9,10 +8,6 @@ const UNITS_TEST_ALGS = [Euler(),Midpoint(),RK4(),SSPRK104(),SSPRK22(),SSPRK33()
 f = (t,y) -> 0.5*y / 3.0u"s"
 u0 = 1.0u"N"
 prob = ODEProblem(f,u0,(0.0u"s",1.0u"s"))
-
-sol =solve(prob,Euler(),dt=1u"s"/10)
-
-sol =solve(prob,Midpoint(),dt=1u"s"/10)
 
 sol =solve(prob,ExplicitRK())
 
@@ -30,12 +25,7 @@ u0 = [1.0u"N" 2.0u"N"
 f = (t,y,dy) -> (dy .= 0.5.*y ./ 3.0u"s")
 prob = ODEProblem(f,u0,(0.0u"s",1.0u"s"))
 
-sol =solve(prob,RK4(),dt=1u"s"/10)
-
 sol =solve(prob,ExplicitRK())
-sol =solve(prob,DP5())
-
-sol =solve(prob,DP5Threaded())
 
 for alg in UNITS_TEST_ALGS
   @show alg
