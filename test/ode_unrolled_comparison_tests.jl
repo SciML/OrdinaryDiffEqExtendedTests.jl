@@ -1,32 +1,32 @@
 using OrdinaryDiffEq, DiffEqDevTools, DiffEqBase, Base.Test, ODEInterfaceDiffEq
 
 const linear_bigα5 = parse(BigFloat,"1.01")
-f = (t,u) -> (linear_bigα5*u)
-(p::typeof(f))(::Type{Val{:analytic}},t,u0) = u0*exp(linear_bigα5*t)
+f = (u,p,t) -> (linear_bigα5*u)
+(::typeof(f))(::Type{Val{:analytic}},u0,p,t) = u0*exp(linear_bigα5*t)
 prob_ode_bigfloatlinear = ODEProblem(f,parse(BigFloat,"0.5"),(0.0,10.0))
 
-f = (t,u,du) -> begin
+f = (du,u,p,t) -> begin
   for i in 1:length(u)
     du[i] = linear_bigα5*u[i]
   end
 end
-(p::typeof(f))(::Type{Val{:analytic}},t,u0) = u0*exp(linear_bigα5*t)
+(::typeof(f))(::Type{Val{:analytic}},u0,p,t) = u0*exp(linear_bigα5*t)
 probbig = ODEProblem(f,map(BigFloat,rand(4,2)).*ones(4,2)/2,(0.0,10.0))
 
-linear = (t,u) -> (1.01*u)
-(p::typeof(linear))(::Type{Val{:analytic}},t,u0) = u0*exp(1.01*t)
+linear = (u,p,t) -> (1.01*u)
+(::typeof(linear))(::Type{Val{:analytic}},u0,p,t) = u0*exp(1.01*t)
 probnum = ODEProblem(linear,1/2,(0.0,10.0))
 
 probnumbig = prob_ode_bigfloatlinear
 #prob    = prob_ode_large2Dlinear
 
 
-f_2dlinear = (t,u,du) -> begin
+f_2dlinear = (du,u,p,t) -> begin
   for i in 1:length(u)
     du[i] = 1.01*u[i]
   end
 end
-(p::typeof(f_2dlinear))(::Type{Val{:analytic}},t,u0) = u0*exp.(1.01*t)
+(::typeof(f_2dlinear))(::Type{Val{:analytic}},u0,p,t) = u0*exp.(1.01*t)
 prob = ODEProblem(f_2dlinear,rand(4,2),(0.0,10.0))
 
 dts = 1.//2.^(7:-1:4)

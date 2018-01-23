@@ -4,7 +4,7 @@ using Base.Test
 # Initial state
 u0=[0, -0.25, 0.42081, 0]
 
-function hheom!(t, u::AbstractVector, du::AbstractVector)
+function hheom!(du,u,p,t)
     du[1] = u[3]
     du[2] = u[4]
     du[3] = -u[1] - 2u[1]*u[2]
@@ -63,4 +63,3 @@ a = sol[1, :]
 for el in a
     @test abs(el) < 1e-10
 end
-
