@@ -67,6 +67,10 @@ sol3 =solve(prob,dopri5(),dt=1/8)
 
 @test sol1.t ≈ sol2.t ≈ sol3.t
 
+sol4 =solve(prob,DP5(),dt=1/8,calck=false)
+
+@test sol1.t == sol4.t
+
 ### BS3()
 sim = test_convergence(dts,probnum,BS3())
 @test abs.(sim.𝒪est[:l2]-3) < testTol
