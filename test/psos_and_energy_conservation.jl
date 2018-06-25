@@ -1,3 +1,77 @@
+using OrdinaryDiffEq
+using Base.Test
+
+# Parameters
+Nc = 22
+η = 1.0
+κ = 1.0
+T = (0.0,100.0)
+
+# Matrix definitions
+A = sparse(diagm(sqrt.(Complex[1:Nc;]), 1))
+H = η*(A + A') - 1.0im*κ*A'*A
+
+u0 = zeros(Complex128, Nc+1)
+u0[1] = 1.0
+function f(du, u, t, p)
+    du .= -1.0im*H*u
+end
+
+# Callback
+rng = MersenneTwister(rand(UInt))
+jumpnorm = Ref(rand(rng))
+djumpnorm(x::Vector{Complex128}, t, integrator) = norm(x)^2 - (1-jumpnorm[])
+function dojump(integrator)
+    x = integrator.u
+    t = integrator.t
+
+    x .= normalize(A*x)
+    jumpnorm[] = rand(rng)
+end
+
+cb = ContinuousCallback(djumpnorm,dojump)
+
+prob = ODEProblem{true}(f,u0,T)
+
+sol_tot = []
+Ntraj = 100
+for i=1:Ntraj
+    rng = MersenneTwister(rand(UInt))
+    # Tweaking tolerances and dtmax also is not reliable
+    sol = solve(prob,DP5(),save_everystep=true,callback=cb,
+            abstol=1e-8,reltol=1e-6,dtmax=10)
+    push!(sol_tot, sol)
+end
+
+# This number has to be η^2/κ^2 in steady-state; all trajectories should converge there
+n = [[norm(A * normalize(s.u[j]))^2 for j=1:length(s.t)] for s=sol_tot]
+
+@test all(η^2/κ^2 .≈ [k[end] for k in n])
+
+#=
+using Plots
+gr()
+
+p1 = plot(sol_tot[1].t, n[1], lw = 2)
+for i=2:Ntraj
+    plot!(p1,sol_tot[i].t, n[i])
+end
+
+p2 = plot(sol_tot[1].t, norm.(sol_tot[1].u).^2)
+for i=2:Ntraj
+    plot!(p2,sol_tot[i].t, norm.(sol_tot[i].u).^2)
+end
+=#
+
+
+
+
+
+
+
+
+
+
 using OrdinaryDiffEq, DiffEqCallbacks
 using Base.Test
 
@@ -20,7 +94,7 @@ end
 # Energy
 const E = Hhh(u0)
 
-function ghh(u, resid)
+function ghh(resid, u)
     resid[1] = Hhh(u[1],u[2],u[3],u[4]) - E
     resid[2:4] .= 0
 end
@@ -35,10 +109,10 @@ function psos_callback(j, direction = +1, offset::Real = 0,
 
     # Prepare callback:
     s = sign(direction)
-    cond = (t,u,integrator) -> s*(u - offset)
+    cond = (u,t,integrator) -> s*(u - offset)
     affect! = (integrator) -> nothing
 
-    cb = DiffEqBase.ContinuousCallback(cond, affect!, nothing; callback_kwargs...,
+    cb = DiffEqBase.ContinuousCallback(cond, nothing, affect!; callback_kwargs...,
     save_positions = (true,false), idxs = j)
 end
 
