@@ -1,9 +1,9 @@
-using OrdinaryDiffEq, Base.Test
+using OrdinaryDiffEq, Test, Random
 srand(100)
 setprecision(400)
 
 f = (u,p,t) -> (2u)
-(::typeof(f))(::Type{Val{:analytic}},u0,p,t) = u0*exp(t)
+#(::typeof(f))(::Type{Val{:analytic}},u0,p,t) = u0*exp(t)
 prob = ODEProblem(f,1/2,(0.0,1.0))
 
 

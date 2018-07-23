@@ -1,15 +1,18 @@
-using OrdinaryDiffEq, Base.Test
+using OrdinaryDiffEq, Test
 
 function time_derivative(du,u,p,t)
   du[1] = -t
 end
-function time_derivative(::Type{Val{:analytic}},u0,p,t)
-  u0 - t^2/2
+function time_derivative_analytic(u0,p,t)
+  u0 .- t.^2 ./ 2
 end
 
+ff_time_derivative = ODEFunction(time_derivative,
+                                 analytic=time_derivative_analytic)
 u0 = [1.0]
 tspan = (0.0,1.0)
-prob = ODEProblem(time_derivative,u0,tspan)
+prob = ODEProblem(ff_time_derivative,u0,tspan)
+
 sol = solve(prob,Rosenbrock32(),reltol=1e-9,abstol=1e-9)
 @test sol.errors[:final] < 1e-5
 sol = solve(prob,Rosenbrock23())

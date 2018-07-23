@@ -1,5 +1,4 @@
-using OrdinaryDiffEq
-using Base.Test
+using OrdinaryDiffEq, Test, Random, LinearAlgebra, SparseArrays
 
 # Parameters
 Nc = 22
@@ -8,19 +7,19 @@ Nc = 22
 T = (0.0,100.0)
 
 # Matrix definitions
-A = sparse(diagm(sqrt.(Complex[1:Nc;]), 1))
+A = sparse(diagm(sqrt.(Complex[1:Nc;]) => 1))
 H = η*(A + A') - 1.0im*κ*A'*A
 
-u0 = zeros(Complex128, Nc+1)
+u0 = zeros(ComplexF64, Nc+1)
 u0[1] = 1.0
-function f(du, u, t, p)
+function f_psos(du, u, t, p)
     du .= -1.0im*H*u
 end
 
 # Callback
 rng = MersenneTwister(rand(UInt))
 jumpnorm = Ref(rand(rng))
-djumpnorm(x::Vector{Complex128}, t, integrator) = norm(x)^2 - (1-jumpnorm[])
+djumpnorm(x::Vector{ComplexF64}, t, integrator) = norm(x)^2 - (1-jumpnorm[])
 function dojump(integrator)
     x = integrator.u
     t = integrator.t
@@ -31,7 +30,7 @@ end
 
 cb = ContinuousCallback(djumpnorm,dojump)
 
-prob = ODEProblem{true}(f,u0,T)
+prob = ODEProblem{true}(f_psos,u0,T)
 
 sol_tot = []
 Ntraj = 100
@@ -63,17 +62,7 @@ for i=2:Ntraj
 end
 =#
 
-
-
-
-
-
-
-
-
-
-using OrdinaryDiffEq, DiffEqCallbacks
-using Base.Test
+using OrdinaryDiffEq, DiffEqCallbacks, Test
 
 # Initial state
 u0=[0, -0.25, 0.42081, 0]

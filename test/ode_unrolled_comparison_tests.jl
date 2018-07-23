@@ -1,37 +1,19 @@
-using OrdinaryDiffEq, DiffEqDevTools, DiffEqBase, Base.Test, ODEInterfaceDiffEq
+using OrdinaryDiffEq, DiffEqDevTools, DiffEqBase, Test, ODEInterfaceDiffEq
 
-const linear_bigα5 = parse(BigFloat,"1.01")
-f = (u,p,t) -> (linear_bigα5*u)
-(::typeof(f))(::Type{Val{:analytic}},u0,p,t) = u0*exp(linear_bigα5*t)
-prob_ode_bigfloatlinear = ODEProblem(f,parse(BigFloat,"0.5"),(0.0,10.0))
+using DiffEqProblemLibrary.ODEProblemLibrary: importodeproblems; importodeproblems()
+import DiffEqProblemLibrary.ODEProblemLibrary: prob_ode_bigfloatlinear,
+                                               prob_ode_linear,
+                                               prob_ode_2Dlinear,
+                                               prob_ode_bigfloat2Dlinear
 
-f = (du,u,p,t) -> begin
-  for i in 1:length(u)
-    du[i] = linear_bigα5*u[i]
-  end
-end
-(::typeof(f))(::Type{Val{:analytic}},u0,p,t) = u0*exp(linear_bigα5*t)
-probbig = ODEProblem(f,map(BigFloat,rand(4,2)).*ones(4,2)/2,(0.0,10.0))
-
-linear = (u,p,t) -> (1.01*u)
-(::typeof(linear))(::Type{Val{:analytic}},u0,p,t) = u0*exp(1.01*t)
-probnum = ODEProblem(linear,1/2,(0.0,10.0))
-
+probbig = prob_ode_bigfloat2Dlinear
+probnum = prob_ode_linear
 probnumbig = prob_ode_bigfloatlinear
-#prob    = prob_ode_large2Dlinear
+prob = prob_ode_2Dlinear
 
-
-f_2dlinear = (du,u,p,t) -> begin
-  for i in 1:length(u)
-    du[i] = 1.01*u[i]
-  end
-end
-(::typeof(f_2dlinear))(::Type{Val{:analytic}},u0,p,t) = u0*exp.(1.01*t)
-prob = ODEProblem(f_2dlinear,rand(4,2),(0.0,10.0))
-
-dts = 1.//2.^(7:-1:4)
+dts = (1/2) .^ (7:-1:4)
 testTol = .2
-bools = Vector{Bool}(0)
+bools = Vector{Bool}(undef,0)
 
 ## DP5()
 sim = test_convergence(dts,probnum,DP5())
@@ -94,7 +76,7 @@ sol2 =solve(prob,BS3(),dt=1/2^6)
 @test length(sol1) == length(sol2)
 
 ### BS5()
-dts = 1.//2.^(6:-1:3)
+dts = (1/2) .^ (6:-1:3)
 sim = test_convergence(dts,probnumbig,BS5())
 @test abs.(sim.𝒪est[:l2]-5) < testTol
 sim = test_convergence(dts,probbig,BS5())
@@ -118,7 +100,7 @@ sol2 =solve(prob,BS5(),dt=1/2^6)
 
 ### Tsit5()
 
-dts = 1.//2.^(7:-1:3)
+dts = (1/2) .^ (7:-1:3)
 sim = test_convergence(dts,probnum,Tsit5())
 @test abs.(sim.𝒪est[:l2]-5) < testTol+.1
 sim = test_convergence(dts,prob,Tsit5())
@@ -142,7 +124,7 @@ sol2 =solve(prob,Tsit5(),dt=1/2^6)
 
 ### Vern6()
 
-dts = 1.//2.^(8:-1:5)
+dts = (1/2) .^ (8:-1:5)
 sim = test_convergence(dts,probnumbig,Vern6())
 @test abs.(sim.𝒪est[:l2]-6) < testTol
 sim = test_convergence(dts,probbig,Vern6())
@@ -166,7 +148,7 @@ sol2 =solve(probbig,Vern6(),dt=1/2^6)
 
 ### Vern7()
 
-dts = 1.//2.^(6:-1:3)
+dts = (1/2) .^ (6:-1:3)
 sim = test_convergence(dts,probnumbig,Vern7(),dense_errors=true)
 @test abs.(sim.𝒪est[:l2]-7) < testTol
 sim = test_convergence(dts,probbig,Vern7(),dense_errors=true)
@@ -190,7 +172,7 @@ sol2 =solve(probbig,Vern7(),dt=1/2^6)
 
 ### TanYam7()
 
-dts = 1.//2.^(6:-1:3)
+dts = (1/2) .^ (6:-1:3)
 sim = test_convergence(dts,probnumbig,TanYam7())
 @test abs.(sim.𝒪est[:l2]-7) < testTol
 sim = test_convergence(dts,probbig,TanYam7())
@@ -215,7 +197,7 @@ sol2 =solve(prob,TanYam7(),dt=1/2^6)
 
 ### Vern8()
 
-dts = 1.//2.^(6:-1:3)
+dts = (1/2) .^ (6:-1:3)
 sim = test_convergence(dts,probnumbig,Vern8(),dense_errors=true)
 @test abs.(sim.𝒪est[:l2]-8) < testTol
 sim = test_convergence(dts,probbig,Vern8(),dense_errors=true)
@@ -239,7 +221,7 @@ sol2 =solve(prob,Vern8(),dt=1/2^6)
 
 ### DP8()
 
-dts = 1.//2.^(3:-1:1)
+dts = (1/2) .^ (3:-1:1)
 sim = test_convergence(dts,probnumbig,DP8())
 @test abs.(sim.𝒪est[:l2]-8) < testTol
 sim = test_convergence(dts,probbig,DP8())
@@ -262,7 +244,7 @@ sol2 =solve(probbig,dop853(),dt=1/2^6)
 
 ### TsitPap8()
 
-dts = 1.//2.^(6:-1:3)
+dts = (1/2) .^ (6:-1:3)
 sim = test_convergence(dts,probnumbig,TsitPap8())
 @test abs.(sim.𝒪est[:l2]-8) < testTol
 sim = test_convergence(dts,probbig,TsitPap8())
@@ -286,7 +268,7 @@ sol2 =solve(prob,TsitPap8(),dt=1/2^6)
 
 ### Vern9()
 
-dts = 1.//2.^(6:-1:3)
+dts = (1/2) .^ (6:-1:3)
 sim = test_convergence(dts,probnumbig,Vern9(),dense_errors=true)
 @test abs.(sim.𝒪est[:l2]-9) < testTol
 sim = test_convergence(dts,probbig,Vern9(),dense_errors=true)
