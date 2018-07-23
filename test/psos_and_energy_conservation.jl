@@ -7,7 +7,7 @@ Nc = 22
 T = (0.0,100.0)
 
 # Matrix definitions
-A = sparse(diagm(sqrt.(Complex[1:Nc;]) => 1))
+A = sparse(diagm(1 => sqrt.(Complex[1:Nc;])))
 H = η*(A + A') - 1.0im*κ*A'*A
 
 u0 = zeros(ComplexF64, Nc+1)
