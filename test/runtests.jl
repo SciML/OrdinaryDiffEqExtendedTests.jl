@@ -16,3 +16,4 @@ const CACHE_TEST_ALGS = [Euler(),Midpoint(),RK4(),SSPRK22(),SSPRK33(),SSPRK53(),
 @time @testset "PSOS and Energy Conserve" begin include("psos_and_energy_conservation.jl") end
 @time @testset "Init dt vs dorpri tests" begin include("init_dt_vs_dopri_tests.jl") end
 @time @testset "Unrolled Tests" begin include("ode_unrolled_comparison_tests.jl") end
+@time @testset "Alg Events Tests" begin include("alg_events_tests.jl") end
