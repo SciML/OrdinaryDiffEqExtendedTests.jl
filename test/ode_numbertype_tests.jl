@@ -1,5 +1,5 @@
 using OrdinaryDiffEq, Test, Random
-srand(100)
+Random.seed!(100)
 setprecision(400)
 
 f = (u,p,t) -> (2u)
