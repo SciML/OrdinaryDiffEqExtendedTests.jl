@@ -33,3 +33,36 @@ for alg in UNITS_TEST_ALGS
 end
 
 println("Units for 2D pass")
+
+using Unitful, RecursiveArrayTools, DiffEqBase, OrdinaryDiffEq
+using LinearAlgebra
+r0 = [1131.340, -2282.343, 6672.423]u"km"
+v0 = [-5.64305, 4.30333, 2.42879]u"km/s"
+Δt = 86400.0*365u"s"
+μ = 398600.4418u"km^3/s^2"
+rv0 = ArrayPartition(r0,v0)
+
+function f(dy, y, μ, t)
+    r = norm(y.x[1])
+    dy.x[1] .= y.x[2]
+    dy.x[2] .= -μ .* y.x[1] / r^3
+end
+
+prob = ODEProblem(f,rv0,(0.0u"s",1.0u"s"),μ)
+sol = solve(prob,Tsit5())
+
+# coordinate: u = [position, momentum]
+# parameters: p = [mass, force constanst]
+function f_harmonic!(du,u,p,t)
+  du[1] = u[2]/p[1]
+  du[2] = -p[2]*u[1]
+end
+
+mass = 1.0u"kg"
+k = 1.0u"N/m"
+p = [mass, k]
+
+u0 = [1.0u"m", 0.0u"kg*m/s"] # initial values (position, momentum)
+tspan = (0.0u"s", 10.0u"s")
+prob = ODEProblem(f_harmonic!, u0, tspan, p)
+sol = solve(prob)
