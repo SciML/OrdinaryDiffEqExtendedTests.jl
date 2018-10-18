@@ -12,6 +12,7 @@ const CACHE_TEST_ALGS = [Euler(),Midpoint(),RK4(),SSPRK22(),SSPRK33(),SSPRK53(),
 @time @testset "Number Type Tests" begin include("ode_numbertype_tests.jl") end
 @time @testset "Ndim Complex Tests" begin include("ode_ndim_complex_tests.jl") end
 @time @testset "In-Place Tests" begin include("ode_inplace_tests.jl") end
+@time @testset "Event Detection Tests" begin include("event_detection_tests.jl") end
 @time @testset "Adaptive Tests" begin include("ode_adaptive_tests.jl") end
 @time @testset "PSOS and Energy Conserve" begin include("psos_and_energy_conservation.jl") end
 @time @testset "Init dt vs dorpri tests" begin include("init_dt_vs_dopri_tests.jl") end
