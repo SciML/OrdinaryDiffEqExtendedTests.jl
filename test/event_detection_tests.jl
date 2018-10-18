@@ -1,4 +1,5 @@
 using StaticArrays
+using Parameters
 using OrdinaryDiffEq
 
 @inbounds @inline function ż(z, p, t)
@@ -26,3 +27,6 @@ sol=solve(prob, Vern9(), abstol=1e-14, reltol=1e-14,
     save_everystep=false, save_start=false, save_end=false, maxiters=1e6)
 
 length(sol) == 126
+
+prob=ODEProblem(ż, z0, (0,400.), (A=1, B=0.55, D=0.4), callback=cb(3))
+sol=solve(prob, Vern9(), abstol=1e-14, reltol=1e-14, save_everystep=false, save_start=false, save_end=false, maxiters=2e4)
